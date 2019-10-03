@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Script to deploy the latest release (BLUE/GREEN aware)
+
+set -euo pipefail
+
+# Helpers ----------------------------------------------------------------------
+# Print echo messages in bold --------------------------------------------------
+function bold_echo() {
+  echo -e "\033[1m$1\033[0m"
+}
+
+# Determine active service -----------------------------------------------------
+function determine_active_service() {
+  ACTIVE_SERVICE_FILE_PATH="/etc/{{ elixir_app.name }}/active_service"
+  ACTIVE_SERVICE=
+
+  # If no active service was configured yet (i.e. first deploy) then use "BLUE"
+  if [ ! -f "$ACTIVE_SERVICE_FILE_PATH" ]; then
+    echo "BLUE" > "$ACTIVE_SERVICE_FILE_PATH"
+  fi
+
+  read -r ACTIVE_SERVICE < "$ACTIVE_SERVICE_FILE_PATH"
+}
+# HELPERS ----------------------------------------------------------------------
+
+
+# Set up our variables ---------------------------------------------------------
+# Determine which (blue / green) is going to be active after deployment. -------
+determine_active_service
+
+NEW_ACTIVE_SERVICE=
+
+if [ "$ACTIVE_SERVICE" = "BLUE" ]; then
+  NEW_ACTIVE_SERVICE="GREEN"
+else
+  NEW_ACTIVE_SERVICE="BLUE"
+fi
+
+TMP_DIR="/tmp/{{ elixir_app.name }}"
+APP_DIR="/srv/app/{{ elixir_app.name }}_$NEW_ACTIVE_SERVICE"
+
+# Extract new version ----------------------------------------------------------
+bold_echo "===> $NEW_ACTIVE_SERVICE | Extracting archive"
+cd $TMP_DIR
+mkdir -p $TMP_DIR/{{ elixir_app.name }}
+tar -xzf {{ elixir_app.name }}.tar.gz -C $TMP_DIR/{{ elixir_app.name }}
+
+bold_echo "===> $NEW_ACTIVE_SERVICE | Deploying new app version"
+if [ ! -d "$APP_DIR" ]; then
+  bold_echo "===> Creating $APP_DIR"
+  mkdir -p $APP_DIR
+  chown -R {{ elixir_app.name }}:{{ elixir_app.name }} $APP_DIR
+fi
+
+# copy all new files & make sure no longer existing files are deleted
+rsync -a --delete \
+      --chown={{ elixir_app.name }}:{{ elixir_app.name }} \
+      $TMP_DIR/{{ elixir_app.name }}/ $APP_DIR
+
+# Enable and start new (blue/green) service ------------------------------------
+bold_echo "===> $NEW_ACTIVE_SERVICE | Enable: {{ elixir_app.name }}_$NEW_ACTIVE_SERVICE.service"
+systemctl enable "{{ elixir_app.name }}_$NEW_ACTIVE_SERVICE.service"
+
+bold_echo "===> $NEW_ACTIVE_SERVICE | Start: {{ elixir_app.name }}_$NEW_ACTIVE_SERVICE.service"
+systemctl start "{{ elixir_app.name }}_$NEW_ACTIVE_SERVICE.service"
+
+# Stop and disable old (blue/green) service ------------------------------------
+bold_echo "===> $ACTIVE_SERVICE | Stop: {{ elixir_app.name }}_$ACTIVE_SERVICE.service"
+systemctl stop "{{ elixir_app.name }}_$ACTIVE_SERVICE.service"
+
+bold_echo "===> $ACTIVE_SERVICE | Disable: {{ elixir_app.name }}_$ACTIVE_SERVICE.service"
+systemctl disable "{{ elixir_app.name }}_$ACTIVE_SERVICE.service"
+
+# Mark new (blue/green) service as active --------------------------------------
+bold_echo "===> $NEW_ACTIVE_SERVICE | Active: Set $NEW_ACTIVE_SERVICE as active"
+echo "$NEW_ACTIVE_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
+
+# Cleanup ----------------------------------------------------------------------
+bold_echo "===> Cleanup"
+rm -r $TMP_DIR
+
+bold_echo "===> Done"
+
+exit 0

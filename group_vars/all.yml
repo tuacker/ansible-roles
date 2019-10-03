@@ -1,0 +1,11 @@
+---
+# Setup | Security -------------------------------------------------------------
+security_packages:
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+
+ufw_open_ports:
+  - 22                     # ssh
+  - 80                     # http
+  - 443                    # https

@@ -1,0 +1,19 @@
+---
+# You'll want to change the variables marked as "CHANGE ME"
+# Other variables can be changed as well, but these are the most common ones.
+elixir_app:
+  name: "example_app" # CHANGE ME
+  env_template-file_path: "/path/to/example-env.template.j2" # CHANGE ME
+  blue_green_config:
+      - { type: "BLUE", port: "4000" }
+      - { type: "GREEN", port: "4000" }
+deploy:
+  name: "deploy_{{ elixir_app.name }}"
+  script_id: "{{ elixir_app.name }}" # expanded to "/usr/local/bin/example_app_deploy.sh"
+  shell: "/bin/bash"
+  pubkey: "/path/to/deploy-user.pub" # CHANGE ME
+postgres:
+  version: 12
+  user: "{{ elixir_app.name }}"
+  db_name: "{{ elixir_app.name }}_prod"
+  password: "{{ secrets_db_password }}" # (from  secrets.yml)

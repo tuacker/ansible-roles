@@ -1,0 +1,17 @@
+---
+- name: Bootstrap
+  hosts: all
+  gather_facts: true
+
+  # You'll want to change these paths, and their contents
+  vars_files:
+    - "_example_vars/secrets.yml"
+    - "_example_vars/production_vars.yml"
+
+  roles:
+    - security
+    - common
+    - sudo_users
+    - elixir_app_user
+    - deploy_user
+    - postgres

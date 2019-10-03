@@ -1,0 +1,30 @@
+---
+- name: Add postgres APT repo key
+  apt_key: url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
+
+- name: Add postgres APT repository
+  apt_repository: repo="deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+
+- name: Install PostgreSQL
+  apt: pkg=postgresql-{{ postgres.version }} state=present
+
+- name: Create app db-user
+  postgresql_user: name={{ postgres.user }}
+                   password={{ postgres.password }}
+                   encrypted=yes
+                   role_attr_flags=CREATEDB,NOSUPERUSER
+  become_user: postgres
+
+- name: Create database
+  postgresql_db: name={{ postgres.db_name }} owner={{ postgres.user }}
+  become_user: postgres
+
+- name: Ensure app db-user has all privileges on database(s)
+  postgresql_privs: db={{ postgres.db_name }}
+                    roles={{ postgres.user }}
+                    type=database privs=ALL
+  become_user: postgres
+
+- name: Ensure citext extension is available
+  postgresql_ext: name=citext db={{ postgres.db_name }}
+  become_user: postgres

@@ -9,3 +9,15 @@ ufw_open_ports:
   - 22                     # ssh
   - 80                     # http
   - 443                    # https
+
+# Setup | Common ---------------------------------------------------------------
+essential_packages:
+  - git
+  - curl
+  - apt-transport-https   # Required for HTTPs deb's
+  - python3-psycopg2      # Required for PostgreSQL
+  - libpq-dev             #       -"-
+  - build-essential
+  - acl
+  - htop
+  - software-properties-common # for certbot

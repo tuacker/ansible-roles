@@ -1,0 +1,41 @@
+---
+- name: Update APT package cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: System upgrade
+  apt:
+    upgrade: dist
+
+- name: Install essential packages
+  apt: state=present pkg='{{ essential_packages }}'
+
+- name: Set hostname - part 1 (cmd hostname)
+  hostname: name={{ inventory_hostname_short }}
+
+- name: Set hostname - part 2 (/etc/hostname)
+  copy: content="{{ inventory_hostname_short }}{{'\n'}}"
+        dest=/etc/hostname
+        owner=root
+        group=root
+        mode=0644
+
+  # Setting 127.0.1.1 not 127.0.0.1 because the FQDN doesn't have a real DNS entry for that.
+- name: Set FQDN hostname - part 3 (/etc/hosts - IPv4)
+  lineinfile: dest=/etc/hosts
+              regexp="^127.0.1.1"
+              line="127.0.1.1{{'\t'}}{{ inventory_hostname }}{{'\t'}}{{ inventory_hostname_short }}"
+              state=present
+              backup=yes
+
+- name: Set FQDN hostname - part 4 (/etc/hosts - IPv6)
+  lineinfile: dest=/etc/hosts
+              regexp="^::1"
+              line="::1{{'\t'}}{{ inventory_hostname }}{{'\t'}}{{ inventory_hostname_short }}{{'\t'}}ip6-localhost{{'\t'}}ip6-loopback"
+              state=present
+              backup=yes
+
+- name: Set timezone to Etc/UTC
+  timezone: name=Etc/UTC
+
+- name: Make sure en_US.UTF-8 is available
+  locale_gen: name=en_US.UTF-8 state=present

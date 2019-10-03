@@ -12,7 +12,7 @@ function bold_echo() {
 
 # Determine active service -----------------------------------------------------
 function determine_active_service() {
-  ACTIVE_SERVICE_FILE_PATH="/etc/{{ elixir_app.name }}/active"
+  ACTIVE_SERVICE_FILE_PATH="/etc/{{ elixir_app.name }}/active_service"
   ACTIVE_SERVICE=
 
   # If no active service was configured yet (i.e. first deploy) then use "BLUE"

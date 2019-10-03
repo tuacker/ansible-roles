@@ -14,6 +14,7 @@ ufw_open_ports:
 essential_packages:
   - git
   - curl
+  - rsync
   - apt-transport-https   # Required for HTTPs deb's
   - python3-psycopg2      # Required for PostgreSQL
   - libpq-dev             #       -"-

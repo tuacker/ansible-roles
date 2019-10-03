@@ -2,6 +2,8 @@
 
 # Script to quickly run a command against the active app
 
+set -euo pipefail
+
 # Helper to print echo messages in bold
 function bold_echo() {
   echo -e "\033[1m$1\033[0m"

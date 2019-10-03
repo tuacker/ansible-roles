@@ -22,7 +22,7 @@
 - name: Ensure systemd script is installed (BLUE + GREEN)
   template: src=app.systemd.service.j2
             dest=/etc/systemd/system/{{ elixir_app.name }}_{{ item.type }}.service
-  with_items: {{ elixir_app.blue_green_config }}
+  with_items: "{{ elixir_app.blue_green_config }}"
   register: systemd_service
 
 - name: Reload systemctl daemon
@@ -32,4 +32,4 @@
 - name: Ensure both BLUE and GREEN app systemd scripts are disabled; will be enabled by deployer.
   systemd: name={{ elixir_app.name }}_{{ item.type }}.service
            enabled=no
-  with_items: {{ elixir_app.blue_green_config }}
+  with_items: "{{ elixir_app.blue_green_config }}"

@@ -1,2 +1,2 @@
 # {{ ansible_managed }}
-{{ elixir_app.deploy_user_name }} ALL=(root) NOPASSWD: /usr/local/bin/{{ elixir_app.name }}_deploy.sh
+{{ deploy.name }} ALL=(root) NOPASSWD: /usr/local/bin/{{ deploy.script_id }}_deploy.sh

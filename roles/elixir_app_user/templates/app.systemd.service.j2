@@ -17,6 +17,9 @@ ExecStart=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/{{ elixir_app.name 
 Restart=on-failure
 RestartSec=5
 
+; give service 2 minutes (120s) before forcibly stopping with a SIGKILL
+TimeoutStopSec=120
+
 SyslogIdentifier={{ elixir_app.name }}_{{ item.type }}
 RemainAfterExit=no
 

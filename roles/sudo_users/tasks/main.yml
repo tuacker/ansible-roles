@@ -1,0 +1,21 @@
+---
+- name: Create sudo users
+  user: name={{ item.name }} shell={{ item.shell }}
+  with_items: "{{ sudo_users }}"
+
+- name: Add users to sudoers
+  lineinfile: dest=/etc/sudoers.d/{{ item.name }}
+              create=yes
+              line="{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
+  with_items: "{{ sudo_users }}"
+
+- name: Set correct filemode in /etc/sudoers.d/
+  file: path=/etc/sudoers.d/{{ item.name }} mode=0440
+  with_items: "{{ sudo_users }}"
+
+- name: Add pubkeys to users
+  authorized_key: user={{ item.name }}
+                  key="{{ lookup('file', item.pubkey ) }}"
+                  exclusive=yes
+                  manage_dir=yes
+  with_items: "{{ sudo_users }}"

@@ -1,0 +1,39 @@
+---
+# Add a app user which will run an elixir app
+- name: Create the app user
+  user: name={{ elixir_app.name }} shell={{ elixir_app.shell }}
+
+- name: Ensure /etc/{{ elixir_app.name }} dir exists
+  file: path=/etc/{{ elixir_app.name }} state=directory
+
+- name: Set {{ elixir_app.name|upper }} ENV's
+  template: src={{ elixir_app.env_template-file_path }}
+            dest=/etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
+            owner={{ elixir_app.name }}
+            group={{ elixir_app.name }}
+
+- name: Install a script to quickly run commands against the active (green or blue) app
+  template: src=app_run.sh.j2
+            dest=/home/{{ elixir_app.name }}/{{ elixir_app.name }}_run.sh
+            owner={{ elixir_app.name }}
+            group={{ elixir_app.name }}
+            mode=0755
+
+- name: Ensure systemd script is installed (BLUE + GREEN)
+  template: src=app.systemd.service.j2
+            dest=/etc/systemd/system/{{ elixir_app.name }}_{{ item.type }}.service
+  with_items:
+    - { type: "BLUE" }
+    - { type: "GREEN" }
+  register: systemd_service
+
+- name: Reload systemctl daemon
+  command: systemctl daemon-reload
+  when: systemd_service.changed
+
+- name: Ensure both BLUE and GREEN app systemd scripts are disabled; will be enabled by deployer.
+  systemd: name={{ elixir_app.name }}_{{ item.type }}.service
+           enabled=no
+  with_items:
+    - { type: "BLUE" }
+    - { type: "GREEN" }

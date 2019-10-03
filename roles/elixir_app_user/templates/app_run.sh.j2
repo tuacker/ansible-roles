@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script to quickly run a command against the active app
+
+# Helper to print echo messages in bold
+function bold_echo() {
+  echo -e "\033[1m$1\033[0m"
+}
+
+set -o allexport
+. /etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
+set +o allexport
+
+read -r ACTIVE_SERVICE < /etc/{{ elixir_app.name }}/active
+
+bold_echo "===> {{ elixir_app.name }}_$ACTIVE_SERVICE.service is set as active..."
+
+if systemctl is-active --quiet "{{ elixir_app.name }}_$ACTIVE_SERVICE.service"; then
+  bold_echo "===> {{ elixir_app.name }}_$ACTIVE_SERVICE.service is running..."
+  bold_echo ""
+
+  /srv/app/{{ elixir_app.name }}"_$ACTIVE_SERVICE"/bin/{{ elixir_app.name }} "$@"
+else
+ bold_echo "===> {{ elixir_app.name }}_$ACTIVE_SERVICE.service is NOT running..."
+ bold_echo "===> ABORTED"
+fi

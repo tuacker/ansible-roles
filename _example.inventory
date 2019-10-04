@@ -1,0 +1,8 @@
+[servers]
+server-01.example.com ansible_host=127.0.0.1 ansible_user=example
+
+[python:children]
+servers
+
+[python:vars]
+ansible_python_interpreter=/usr/bin/python3

@@ -3,7 +3,7 @@
   apt: update_cache=yes cache_valid_time=3600
 
 - name: Install security packages
-  apt: state=present pkg='{{ security_packages }}'
+  apt: state=present pkg="{{ security_packages }}"
 
 - name: Enable unattended upgrades
   copy: src=apt_unattended_upgrades dest=/etc/apt/apt.conf.d/20auto-upgrades

@@ -3,14 +3,13 @@
   apt: update_cache=yes cache_valid_time=3600
 
 - name: System upgrade
-  apt:
-    upgrade: dist
+  apt: upgrade=dist
 
 - name: Install essential packages
-  apt: state=present pkg='{{ essential_packages }}'
+  apt: state=present pkg="{{ essential_packages }}"
 
 - name: Set hostname - part 1 (cmd hostname)
-  hostname: name={{ inventory_hostname_short }}
+  hostname: name="{{ inventory_hostname_short }}"
 
 - name: Set hostname - part 2 (/etc/hostname)
   copy: content="{{ inventory_hostname_short }}{{'\n'}}"

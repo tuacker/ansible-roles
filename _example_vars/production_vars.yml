@@ -2,21 +2,24 @@
 # You'll want to change the variables marked as "CHANGE ME"
 # Other variables can be changed as well, but these are the most common ones.
 
-app_name: "example-app" # CHANGE ME
+app_name: "example_app" # CHANGE ME
 root_domain: "{{ app_name}}.com" # CHANGE ME
+app_domain: "app.{{ root_domain }}" # CHANGE ME
 
 elixir_app:
   name: "{{ app_name }}"
+  shell: "/bin/bash"
   env_template-file_path: "/path/to/example-env.template.j2" # CHANGE ME
   blue_green_config:
       - { type: "BLUE", port: "4000" }
       - { type: "GREEN", port: "4001" }
 
 deploy:
-  name: "deploy_{{ app_name }}"
-  script_id: "{{ app_name }}" # expanded to "/usr/local/bin/example_app_deploy.sh"
+  user: "deploy_{{ app_name }}"
   shell: "/bin/bash"
-  pubkey: "/path/to/deploy-user.pub" # CHANGE ME
+  pubkey: "/path/to/deploy-user.pub" # CHANGE M
+  service_name: "{{ app_name }}"
+  nginx_vhost: "{{ app_domain }}"
 
 postgres:
   version: 12
@@ -33,5 +36,5 @@ certs:
 
 nginx:
   proxy_configs:
-    - { domain: "app.{{ root_domain }}", type: "BLUE", proxy_port: "4000" }
-    - { domain: "app.{{ root_domain }}", type: "GREEN", proxy_port: "4001" }
+    - { domain: "{{ app_domain }}", type: "BLUE", proxy_port: "4000" }
+    - { domain: "{{ app_domain }}", type: "GREEN", proxy_port: "4001" }

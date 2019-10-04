@@ -1,2 +1,2 @@
 # {{ ansible_managed }}
-{{ deploy.name }} ALL=(root) NOPASSWD: /usr/local/bin/{{ deploy.script_id }}_deploy.sh
+{{ deploy.user }} ALL=(root) NOPASSWD: /usr/local/bin/{{ deploy.service_name }}_deploy.sh

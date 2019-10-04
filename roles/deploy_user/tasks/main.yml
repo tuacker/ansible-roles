@@ -1,16 +1,16 @@
 ---
 - name: Create deploy user
-  user: name={{ deploy.name }} shell={{ deply_user.shell }}
+  user: name={{ deploy.user }} shell={{ deply_user.shell }}
 
 - name: Add pubkey to deploy
-  authorized_key: user={{ deploy.name }}
+  authorized_key: user={{ deploy.user }}
                   key="{{ lookup('file', '{{ deploy.pubkey }}' ) }}"
                   exclusive=yes
                   manage_dir=yes
 
 - name: Add deploy script
   template: src=deploy.sh.j2
-            dest="/usr/local/bin/{{ elixir_app.name }}_deploy.sh"
+            dest="/usr/local/bin/{{ deploy.service_name }}_deploy.sh"
             owner=root
             group=root
             mode=0755
@@ -18,5 +18,5 @@
 - name: Allow deploy user to sudo commands for deployment only
   template:
     src: "deploy.sudoers.j2"
-    dest: /etc/sudoers.d/{{ deploy.name }}
+    dest: /etc/sudoers.d/{{ deploy.user }}
     validate: 'visudo -cf %s'

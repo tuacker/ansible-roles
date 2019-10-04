@@ -3,7 +3,14 @@
   apt_repository: repo=ppa:certbot/certbot
 
 - name: Install certbot
-  apt: pkg="certbot python-certbot-nginx" state=present
+  apt: pkg="{{ packages }}" state=present
+  vars:
+    packages:
+      - software-properties-common
+      - certbot
+      - python-certbot-nginx
+      - python3-venv
+      - python3-pip
 
 - name: Install Gandi DNS certbot plugin
   pip: name=certbot-plugin-gandi state=latest

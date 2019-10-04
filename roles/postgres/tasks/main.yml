@@ -6,7 +6,12 @@
   apt_repository: repo="deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
 
 - name: Install PostgreSQL
-  apt: pkg=postgresql-{{ postgres.version }} state=present
+  apt: pkg={{ packages }} state=present
+  vars:
+    packages:
+      - python3-psycopg2
+      - libpq-dev
+      - "postgresql-{{ postgres.version }}"
 
 - name: Create app db-user
   postgresql_user: name={{ postgres.user }}

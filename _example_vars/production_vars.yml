@@ -6,6 +6,9 @@ app_name: "example_app" # CHANGE ME
 root_domain: "{{ app_name}}.com" # CHANGE ME
 app_domain: "app.{{ root_domain }}" # CHANGE ME
 
+sudo_users:
+  - { name: "example_user", shell: "/bin/bash", pubkey: "~/.ssh/id_rsa.pub" } # CHANGE ME
+
 elixir_app:
   name: "{{ app_name }}"
   shell: "/bin/bash"

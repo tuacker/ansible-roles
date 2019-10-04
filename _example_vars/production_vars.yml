@@ -3,13 +3,14 @@
 # Other variables can be changed as well, but these are the most common ones.
 
 app_name: "example-app" # CHANGE ME
+root_domain: "{{ app_name}}.com" # CHANGE ME
 
 elixir_app:
   name: "{{ app_name }}"
   env_template-file_path: "/path/to/example-env.template.j2" # CHANGE ME
   blue_green_config:
       - { type: "BLUE", port: "4000" }
-      - { type: "GREEN", port: "4000" }
+      - { type: "GREEN", port: "4001" }
 
 deploy:
   name: "deploy_{{ app_name }}"
@@ -24,8 +25,13 @@ postgres:
   password: "{{ secrets_db_password }}" # (from  secrets.yml)
 
 certs:
-  domain: "{{ app_name }}.com"
+  domain: "{{ root_domain }}"
   # Staging server, you'll want to change this to the real server for production:
   # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
   acme-server: "https://acme-staging-v02.api.letsencrypt.org/directory"
   gandi_api_key: "{{ secrets_gandi_api_key }}"
+
+nginx:
+  proxy_configs:
+    - { domain: "app.{{ root_domain }}", type: "BLUE", proxy_port: "4000" }
+    - { domain: "app.{{ root_domain }}", type: "GREEN", proxy_port: "4001" }

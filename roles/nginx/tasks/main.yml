@@ -1,0 +1,30 @@
+---
+- name: Add nginx ppa
+  apt_repository: repo=ppa:nginx/stable
+
+- name: Install nginx
+  apt: pkg=nginx state=present
+
+- name: Generate Diffie-Hellman keys
+  openssl_dhparam: path=/etc/nginx/dhparam.pem size=4096
+
+- name: Remove default nginx site
+  file: path="/etc/nginx/sites-enabled/default" state=absent
+
+- name: Update default nginx.conf
+  copy: src=nginx.conf dest=/etc/nginx/nginx.conf
+  notify: reload nginx
+
+- name: Copy shared/common configs
+  copy: src={{ item }} dest=/etc/nginx/shared-config/{{ item }}
+  with_items:
+    - general.conf
+    - proxy.conf
+    - security.conf
+
+- name: Install nginx virtual host configs in sites-available
+  template:
+    src: "virtual_host_conf.j2"
+    dest: /etc/nginx/sites-available/{{ item.type }}.{{ item.domain }}
+  with_items: "{{ nginx.proxy_configs }}"
+  notify: reload nginx

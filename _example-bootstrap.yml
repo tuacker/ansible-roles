@@ -15,3 +15,4 @@
     - elixir_app_user
     - deploy_user
     - postgres
+    - certbot

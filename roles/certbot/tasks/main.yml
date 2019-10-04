@@ -1,0 +1,32 @@
+---
+- name: Add certbot ppa
+  apt_repository:
+    repo: ppa:certbot/certbot
+
+- name: Install certbot
+  apt:
+    pkg: certbot python-certbot-nginx
+    state: present
+
+- name: Install Gandi DNS certbot plugin
+  pip: name=certbot-plugin-gandi state=latest
+
+- name: Configure Gandi DNS certbot plugin
+  copy: content="certbot_plugin_gandi:dns_api_key={{ certs.gandi_api_key }}"
+        dest=/etc/letsencrypt/gandi/gandi.ini
+        mode=0600
+
+- name: Generate wildcard certs for domain {{ certs.domain }}
+  shell: >-
+    certbot certonly
+    -a certbot-plugin-gandi:dns
+    --certbot-plugin-gandi:dns-credentials /etc/letsencrypt/gandi/gandi.ini
+    -d {{ certs.domain }} -d \*.{{ certs.domain }}
+    --server {{ certs.acme-server }}
+    --email {{ certs.email }}
+    --agree-tos
+    --noninteractive
+    --staple-ocsp
+
+- name: Dry run cert auto-renew
+  shell: certbot renew --dry-run

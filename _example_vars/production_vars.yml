@@ -1,19 +1,31 @@
 ---
 # You'll want to change the variables marked as "CHANGE ME"
 # Other variables can be changed as well, but these are the most common ones.
+
+app_name: "example-app" # CHANGE ME
+
 elixir_app:
-  name: "example_app" # CHANGE ME
+  name: "{{ app_name }}"
   env_template-file_path: "/path/to/example-env.template.j2" # CHANGE ME
   blue_green_config:
       - { type: "BLUE", port: "4000" }
       - { type: "GREEN", port: "4000" }
+
 deploy:
-  name: "deploy_{{ elixir_app.name }}"
-  script_id: "{{ elixir_app.name }}" # expanded to "/usr/local/bin/example_app_deploy.sh"
+  name: "deploy_{{ app_name }}"
+  script_id: "{{ app_name }}" # expanded to "/usr/local/bin/example_app_deploy.sh"
   shell: "/bin/bash"
   pubkey: "/path/to/deploy-user.pub" # CHANGE ME
+
 postgres:
   version: 12
-  user: "{{ elixir_app.name }}"
-  db_name: "{{ elixir_app.name }}_prod"
+  user: "{{ app_name }}"
+  db_name: "{{ app_name }}_prod"
   password: "{{ secrets_db_password }}" # (from  secrets.yml)
+
+certs:
+  domain: "{{ app_name }}.com"
+  # Staging server, you'll want to change this to the real server for production:
+  # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
+  acme-server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  gandi_api_key: "{{ secrets_gandi_api_key }}"

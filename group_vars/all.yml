@@ -22,3 +22,4 @@ essential_packages:
   - acl
   - htop
   - software-properties-common # for certbot
+  - python-pip # for certbot to install gandi dns plugin

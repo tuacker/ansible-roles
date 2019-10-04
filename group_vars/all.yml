@@ -6,9 +6,9 @@ security_packages:
   - unattended-upgrades
 
 ufw_open_ports:
-  - 22                     # ssh
-  - 80                     # http
-  - 443                    # https
+  - "22"                     # ssh
+  - "80"                     # http
+  - "443"                    # https
 
 # Setup | Common ---------------------------------------------------------------
 essential_packages:

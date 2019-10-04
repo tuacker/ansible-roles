@@ -2,6 +2,7 @@
 - name: Bootstrap
   hosts: all
   gather_facts: true
+  become: yes
 
   # You'll want to change these paths, and their contents
   vars_files:

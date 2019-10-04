@@ -15,7 +15,8 @@
 - name: Install Gandi DNS certbot plugin
   pip: name=certbot-plugin-gandi state=latest
 
-- file: path=/etc/letsencrypt/gandi state=directory
+- name: Ensure "/etc/letsencrypt/gandi" directory exists
+  file: path=/etc/letsencrypt/gandi state=directory
 
 - name: Configure Gandi DNS certbot plugin
   copy: content="certbot_plugin_gandi:dns_api_key={{ certs.gandi_api_key }}"

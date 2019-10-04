@@ -17,7 +17,9 @@ function determine_active_service() {
 
   # If no active service was configured yet (i.e. first deploy) then use "BLUE"
   if [ ! -f "$ACTIVE_SERVICE_FILE_PATH" ]; then
-    echo "BLUE" > "$ACTIVE_SERVICE_FILE_PATH"
+    bold_echo "===> No active service defined. Did you deploy yet?"
+    bold_echo "===> ABORTED"
+    exit 1
   fi
 
   read -r ACTIVE_SERVICE < "$ACTIVE_SERVICE_FILE_PATH"

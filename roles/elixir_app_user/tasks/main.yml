@@ -7,7 +7,7 @@
   file: path=/etc/{{ elixir_app.name }} state=directory
 
 - name: Set {{ elixir_app.name|upper }} ENV's
-  template: src={{ elixir_app.env_template-file_path }}
+  template: src={{ elixir_app.env_template_path }}
             dest=/etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
             owner={{ elixir_app.name }}
             group={{ elixir_app.name }}

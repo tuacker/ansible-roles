@@ -9,7 +9,7 @@ app_domain: "app.{{ root_domain }}" # CHANGE ME
 elixir_app:
   name: "{{ app_name }}"
   shell: "/bin/bash"
-  env_template-file_path: "/path/to/example-env.template.j2" # CHANGE ME
+  env_template_path: "{{ './example-env.template.j2' | realpath }}" # CHANGE ME
   blue_green_config:
       - { type: "BLUE", port: "4000" }
       - { type: "GREEN", port: "4001" }

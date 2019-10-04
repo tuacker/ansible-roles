@@ -42,9 +42,8 @@ APP_DIR="/srv/app/{{ deploy.service_name }}_$NEW_ACTIVE_SERVICE"
 
 # Extract new version ----------------------------------------------------------
 bold_echo "===> $NEW_ACTIVE_SERVICE | Extracting archive"
-cd $TMP_DIR
 mkdir -p $TMP_DIR/{{ deploy.service_name }}
-tar -xzf {{ deploy.service_name }}.tar.gz -C $TMP_DIR/{{ deploy.service_name }}
+tar -xzf "$HOME/{{ deploy.service_name }}.tar.gz" -C $TMP_DIR/{{ deploy.service_name }}
 
 bold_echo "===> $NEW_ACTIVE_SERVICE | Deploying new app version"
 if [ ! -d "$APP_DIR" ]; then
@@ -87,6 +86,7 @@ echo "$NEW_ACTIVE_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
 
 # Cleanup ----------------------------------------------------------------------
 bold_echo "===> Cleanup"
+rm "$HOME/{{ deploy.service_name }}.tar.gz"
 rm -r $TMP_DIR
 
 bold_echo "===> Done"

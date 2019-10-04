@@ -34,8 +34,9 @@ certs:
   domain: "{{ root_domain }}"
   # Staging server, you'll want to change this to the real server for production:
   # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
-  acme-server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  acme_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
   gandi_api_key: "{{ secrets_gandi_api_key }}"
+  email: "ssl@example.com"
 
 nginx:
   proxy_configs:

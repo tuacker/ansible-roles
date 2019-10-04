@@ -1,6 +1,6 @@
 ---
 - name: Create deploy user
-  user: name={{ deploy.user }} shell={{ deply_user.shell }}
+  user: name={{ deploy.user }} shell={{ deploy.shell }}
 
 - name: Add pubkey to deploy
   authorized_key: user={{ deploy.user }}

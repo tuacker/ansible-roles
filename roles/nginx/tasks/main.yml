@@ -1,9 +1,14 @@
 ---
 - name: Add nginx ppa
-  apt_repository: repo=ppa:nginx/stable
+  apt_repository: repo=ppa:hda-me/nginx-stable
 
 - name: Install nginx
-  apt: pkg=nginx state=present
+  apt: pkg={{ packages }} state=present
+  vars:
+    packages:
+      - brotli
+      - nginx
+      - nginx-module-brotli
 
 - name: Generate Diffie-Hellman keys
   openssl_dhparam: path=/etc/nginx/dhparam.pem size=4096

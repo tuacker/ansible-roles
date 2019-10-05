@@ -34,6 +34,14 @@
     --agree-tos
     --noninteractive
     --staple-ocsp
+  register: result
+
+- name: Result of wildcard certs generation
+  debug: msg="{{ result.stdout_lines }}"
 
 - name: Dry run cert auto-renew
   shell: certbot renew --dry-run
+  register: result
+
+- name: Result of renews dry-run
+  debug: msg="{{ result.stdout_lines }}"

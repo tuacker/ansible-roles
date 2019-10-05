@@ -20,7 +20,7 @@ elixir_app:
 deploy:
   user: "deploy_{{ app_name }}"
   shell: "/bin/bash"
-  pubkey: "/path/to/deploy-user.pub" # CHANGE ME
+  pubkey: "~/.ssh/deploy_{{ app_name }}.pub" # CHANGE ME
   service_name: "{{ app_name }}"
   nginx_vhost: "{{ app_domain }}"
 

@@ -5,9 +5,9 @@ server {
     server_name {{ item.domain }};
 
     # SSL
-    ssl_certificate /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ item.domain }}/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/{{ item.domain }}/chain.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ item.root_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ item.root_domain }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ item.root_domain }}/chain.pem;
 
     # security
     include shared-config/security.conf;

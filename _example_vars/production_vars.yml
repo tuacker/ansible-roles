@@ -40,5 +40,5 @@ certs:
 
 nginx:
   proxy_configs:
-    - { domain: "{{ app_domain }}", type: "BLUE", proxy_port: "4000" }
-    - { domain: "{{ app_domain }}", type: "GREEN", proxy_port: "4001" }
+    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "BLUE", proxy_port: "4000" }
+    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "GREEN", proxy_port: "4001" }

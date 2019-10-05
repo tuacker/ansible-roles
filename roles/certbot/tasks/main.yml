@@ -28,7 +28,7 @@
     certbot certonly
     -a certbot-plugin-gandi:dns
     --certbot-plugin-gandi:dns-credentials /etc/letsencrypt/gandi/gandi.ini
-    -d {{ certs.domain }} -d \*.{{ certs.domain }}
+    -d {{ certs.domain }} -d *.{{ certs.domain }}
     --server {{ certs.acme_server }}
     --email {{ certs.email }}
     --agree-tos

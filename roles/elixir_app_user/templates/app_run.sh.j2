@@ -27,7 +27,7 @@ function determine_active_service() {
 # HELPERS ----------------------------------------------------------------------
 
 set -o allexport
-. /etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
+. /etc/{{ elixir_app.name }}/{{ elixir_app.name }}_"$ACTIVE_SERVICE"_env
 set +o allexport
 
 determine_active_service

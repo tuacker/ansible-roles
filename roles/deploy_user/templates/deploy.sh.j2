@@ -48,7 +48,6 @@ if [ ! -d "$APP_DIR" ]; then
   chown -R {{ deploy.service_name }}:{{ deploy.service_name }} $APP_DIR
 fi
 
-bold_echo "===> $NEW_ACTIVE_SERVICE | Deploying new app version"
 # copy all new files & make sure no longer existing files are deleted
 rsync -a --delete \
       --chown={{ deploy.service_name }}:{{ deploy.service_name }} \
@@ -83,8 +82,7 @@ echo "$NEW_ACTIVE_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
 
 # Cleanup ----------------------------------------------------------------------
 bold_echo "===> Cleanup"
-rm "$HOME/{{ deploy.service_name }}.tar.gz"
-rm -r $TMP_DIR
+rm -rf "$HOME/{{ deploy.service_name }}"
 
 bold_echo "===> Done"
 

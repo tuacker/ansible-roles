@@ -9,11 +9,11 @@ Type=simple
 User={{ elixir_app.name }}
 Group={{ elixir_app.name }}
 
-Environment="PORT={{ item.port }}"
+Environment="PORT={{ item.port }}" "RELEASE_NODE={{ elixir_app.name }}_{{ item.type }}@127.0.0.1"
 EnvironmentFile=/etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
 
 WorkingDirectory=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/
-ExecStart=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/{{ elixir_app.name }} foreground
+ExecStart=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/{{ elixir_app.name }} start
 
 Restart=on-failure
 RestartSec=5

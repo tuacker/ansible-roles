@@ -1,0 +1,5 @@
+# BEAM VM setup
+RELEASE_DISTRIBUTION=name
+# Elixir App
+{{ elixir_app.name | upper }}_DATABASE_URL="{{ secrets_db_url }}"
+{{ elixir_app.name | upper }}_SECRET_KEY_BASE="{{ secrets_secret_key_base }}"

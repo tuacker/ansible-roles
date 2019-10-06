@@ -12,7 +12,7 @@ sudo_users:
 elixir_app:
   name: "{{ app_name }}"
   shell: "/bin/bash"
-  env_template_path: "{{ './example-env.template.j2' | realpath }}" # CHANGE ME
+  env_template_path: "{{ './_example-env-template.j2' | realpath }}" # CHANGE ME
   blue_green_config:
       - { type: "blue", port: "4000" }
       - { type: "green", port: "4001" }

@@ -9,7 +9,7 @@ Type=simple
 User={{ elixir_app.name }}
 Group={{ elixir_app.name }}
 
-EnvironmentFile=/etc/{{ elixir_app.name }}/{{ elixir_app.name }}_env
+EnvironmentFile=/etc/{{ elixir_app.name }}/{{ elixir_app.name }}_{{ item.type}}_env
 
 WorkingDirectory=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/
 ExecStart=/srv/app/{{ elixir_app.name }}_{{ item.type }}/bin/{{ elixir_app.name }} start

@@ -20,6 +20,10 @@
             group={{ elixir_app.name }}
             mode=0755
 
+- name: Add EPMD service
+  copy: src=epmd.service dest=/etc/systemd/system/epmd.service
+  register: systemd_service
+
 - name: Ensure systemd script is installed (blue + green)
   template: src=app.systemd.service.j2
             dest=/etc/systemd/system/{{ elixir_app.name }}_{{ item.type }}.service
@@ -29,6 +33,9 @@
 - name: Reload systemctl daemon
   command: systemctl daemon-reload
   when: systemd_service.changed
+
+- name: Enable & Start EPMD service
+  systemd: name=epmd.service enabled=yes state=started
 
 - name: Ensure both blue and green app systemd scripts are disabled; will be enabled by deployer.
   systemd: name={{ elixir_app.name }}_{{ item.type }}.service

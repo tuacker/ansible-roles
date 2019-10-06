@@ -1,0 +1,16 @@
+; {{ ansible_managed }}
+[Unit]
+Description=Erlang Port Mapper Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/epmd
+Restart=always
+RestartSec=2
+Type=simple
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

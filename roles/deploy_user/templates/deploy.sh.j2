@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to deploy the latest release (BLUE/GREEN aware)
+# Script to deploy the latest release (blue/green aware)
 
 set -euo pipefail
 
@@ -15,9 +15,9 @@ function determine_active_service() {
   ACTIVE_SERVICE_FILE_PATH="/etc/{{ deploy.service_name }}/active_service"
   ACTIVE_SERVICE=
 
-  # If no active service was configured yet (i.e. first deploy) then use "BLUE"
+  # If no active service was configured yet (i.e. first deploy) then use "blue"
   if [ ! -f "$ACTIVE_SERVICE_FILE_PATH" ]; then
-    echo "GREEN" > "$ACTIVE_SERVICE_FILE_PATH"
+    echo "green" > "$ACTIVE_SERVICE_FILE_PATH"
   fi
 
   read -r ACTIVE_SERVICE < "$ACTIVE_SERVICE_FILE_PATH"
@@ -31,10 +31,10 @@ determine_active_service
 
 NEW_ACTIVE_SERVICE=
 
-if [ "$ACTIVE_SERVICE" = "BLUE" ]; then
-  NEW_ACTIVE_SERVICE="GREEN"
+if [ "$ACTIVE_SERVICE" = "blue" ]; then
+  NEW_ACTIVE_SERVICE="green"
 else
-  NEW_ACTIVE_SERVICE="BLUE"
+  NEW_ACTIVE_SERVICE="blue"
 fi
 
 TMP_DIR="/tmp/{{ deploy.service_name }}"

@@ -14,8 +14,8 @@ elixir_app:
   shell: "/bin/bash"
   env_template_path: "{{ './example-env.template.j2' | realpath }}" # CHANGE ME
   blue_green_config:
-      - { type: "BLUE", port: "4000" }
-      - { type: "GREEN", port: "4001" }
+      - { type: "blue", port: "4000" }
+      - { type: "green", port: "4001" }
 
 deploy:
   user: "deploy_{{ app_name }}"
@@ -36,9 +36,9 @@ certs:
   # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
   acme_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
   gandi_api_key: "{{ secrets_gandi_api_key }}"
-  email: "ssl@example.com"
+  email: "ssl@example.com" # CHANGE ME
 
 nginx:
   proxy_configs:
-    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "BLUE", proxy_port: "4000" }
-    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "GREEN", proxy_port: "4001" }
+    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "blue", proxy_port: "4000" }
+    - { domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "green", proxy_port: "4001" }

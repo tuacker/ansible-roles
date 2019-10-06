@@ -19,7 +19,7 @@
             group={{ elixir_app.name }}
             mode=0755
 
-- name: Ensure systemd script is installed (BLUE + GREEN)
+- name: Ensure systemd script is installed (blue + green)
   template: src=app.systemd.service.j2
             dest=/etc/systemd/system/{{ elixir_app.name }}_{{ item.type }}.service
   with_items: "{{ elixir_app.blue_green_config }}"
@@ -29,7 +29,7 @@
   command: systemctl daemon-reload
   when: systemd_service.changed
 
-- name: Ensure both BLUE and GREEN app systemd scripts are disabled; will be enabled by deployer.
+- name: Ensure both blue and green app systemd scripts are disabled; will be enabled by deployer.
   systemd: name={{ elixir_app.name }}_{{ item.type }}.service
            enabled=no
   with_items: "{{ elixir_app.blue_green_config }}"

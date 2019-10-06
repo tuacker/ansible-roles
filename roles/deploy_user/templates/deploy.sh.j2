@@ -29,19 +29,19 @@ function determine_active_service() {
 # Determine which (blue / green) is going to be active after deployment. -------
 determine_active_service
 
-NEW_ACTIVE_SERVICE=
+NEW_SERVICE=
 
 if [ "$ACTIVE_SERVICE" = "blue" ]; then
-  NEW_ACTIVE_SERVICE="green"
+  NEW_SERVICE="green"
 else
-  NEW_ACTIVE_SERVICE="blue"
+  NEW_SERVICE="blue"
 fi
 
-APP_DIR="/srv/app/{{ deploy.service_name }}_$NEW_ACTIVE_SERVICE"
+APP_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
 
 
 # Deploy new version ----------------------------------------------------------
-bold_echo "===> $NEW_ACTIVE_SERVICE | Deploying new app version"
+bold_echo "===> $NEW_SERVICE | Deploying new app version"
 if [ ! -d "$APP_DIR" ]; then
   bold_echo "===> Creating $APP_DIR"
   mkdir -p $APP_DIR
@@ -54,31 +54,31 @@ rsync -a --delete \
       "$HOME/{{ deploy.service_name }}/" $APP_DIR
 
 # Enable and start new (blue/green) service ------------------------------------
-bold_echo "===> $NEW_ACTIVE_SERVICE | Enable: {{ deploy.service_name }}_$NEW_ACTIVE_SERVICE.service"
-systemctl enable "{{ deploy.service_name }}_$NEW_ACTIVE_SERVICE.service"
+bold_echo "===> $NEW_SERVICE | Enable: {{ deploy.service_name }}_${NEW_SERVICE}.service"
+systemctl enable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
-bold_echo "===> $NEW_ACTIVE_SERVICE | Start: {{ deploy.service_name }}_$NEW_ACTIVE_SERVICE.service"
-systemctl start "{{ deploy.service_name }}_$NEW_ACTIVE_SERVICE.service"
+bold_echo "===> $NEW_SERVICE | Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
+systemctl start "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
 # Update NGINX config and reload -----------------------------------------------
-bold_echo "===> $NEW_ACTIVE_SERVICE | NGINX: Link new service to sites-enabled"
-ln -sf "/etc/nginx/sites-available/$NEW_ACTIVE_SERVICE.{{ deploy.nginx_vhost }}" \
+bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
+ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}" \
        "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}"
 
-bold_echo "===> $NEW_ACTIVE_SERVICE | NGINX: Test & reload"
+bold_echo "===> $NEW_SERVICE | NGINX: Test & reload"
 nginx -t
 systemctl reload nginx
 
 # Stop and disable old (blue/green) service ------------------------------------
-bold_echo "===> $ACTIVE_SERVICE | Stop: {{ deploy.service_name }}_$ACTIVE_SERVICE.service"
-systemctl stop "{{ deploy.service_name }}_$ACTIVE_SERVICE.service"
+bold_echo "===> $ACTIVE_SERVICE | Stop: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
+systemctl stop "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
-bold_echo "===> $ACTIVE_SERVICE | Disable: {{ deploy.service_name }}_$ACTIVE_SERVICE.service"
-systemctl disable "{{ deploy.service_name }}_$ACTIVE_SERVICE.service"
+bold_echo "===> $ACTIVE_SERVICE | Disable: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
+systemctl disable "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
 # Mark new (blue/green) service as active --------------------------------------
-bold_echo "===> $NEW_ACTIVE_SERVICE | Active: Set $NEW_ACTIVE_SERVICE as active"
-echo "$NEW_ACTIVE_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
+bold_echo "===> $NEW_SERVICE | Active: Set $NEW_SERVICE as active"
+echo "$NEW_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
 
 # Cleanup ----------------------------------------------------------------------
 bold_echo "===> Cleanup"

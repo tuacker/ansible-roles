@@ -60,6 +60,17 @@ systemctl enable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 bold_echo "===> $NEW_SERVICE | Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
 systemctl start "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
+bold_echo "===> $NEW_SERVICE | Wait until node is responsive"
+export "$(grep '^PORT=' /etc/newsletty/newsletty_${NEW_SERVICE}_env | xargs)"
+
+NEXT_WAIT_TIME=0
+until curl "http://127.0.0.1:$PORT" > /dev/null 2>&1 || [ $NEXT_WAIT_TIME -eq 20 ]; do
+  printf "."
+  sleep $(( NEXT_WAIT_TIME++ ))
+done
+
+printf "\n"
+
 # Update NGINX config and reload -----------------------------------------------
 bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
 ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}" \

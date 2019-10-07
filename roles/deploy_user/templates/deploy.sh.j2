@@ -85,20 +85,22 @@ systemctl start "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 # Make sure new node comes up right, otherwise abort ---------------------------
 bold_echo "===> $NEW_SERVICE | Wait until node is responsive"
 bold_echo "==="
-NEXT_WAIT_TIME=0
-MAX_WAIT_TIME=20
-until curl "http://127.0.0.1:$PORT" > /dev/null 2>&1 || [ $NEXT_WAIT_TIME -eq $MAX_WAIT_TIME ]; do
+ATTEMPT=0
+MAX_ATTEMPTS=120
+
+until curl "http://127.0.0.1:$PORT" > /dev/null 2>&1 || [ $ATTEMPT -eq $MAX_ATTEMPTS ]; do
   printf "."
-  sleep $(( NEXT_WAIT_TIME++ ))
+  sleep 1s
+  ATTEMPT=$((ATTEMPT+1))
 done
 
 printf "\n"
 
-if [ $NEXT_WAIT_TIME -eq $MAX_WAIT_TIME ]; then
+if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
   bold_echo "\033[0;31m********************************************************************************\033[0m"
   bold_echo "\033[0;31m********************************************************************************\033[0m"
   bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**     New node failed to respond in the given time, ABORTING                 **\033[0m"
+  bold_echo "\033[0;31m**     New node failed to respond in the given time - aborting                **\033[0m"
   bold_echo "\033[0;31m**                                                                            **\033[0m"
   bold_echo "\033[0;31m**     Manual actions required:                                               **\033[0m"
   bold_echo "\033[0;31m**     ========================                                               **\033[0m"

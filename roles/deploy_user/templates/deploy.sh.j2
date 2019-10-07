@@ -85,6 +85,31 @@ done
 
 printf "\n"
 
+if [ $NEXT_WAIT_TIME -eq $MAX_WAIT_TIME ]; then
+  bold_echo "\033[0;31m********************************************************************************\033[0m"
+  bold_echo "\033[0;31m********************************************************************************\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m**     New node failed to respond in the given time, ABORTING                 **\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m**     Manual actions required:                                               **\033[0m"
+  bold_echo "\033[0;31m**     ========================                                               **\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m**       - Make sure the active node is in proper state.                      **\033[0m"
+  bold_echo "\033[0;31m**       - Restart jobs, etc.                                                 **\033[0m"
+  bold_echo "\033[0;31m**       - ROLL BACK migrations                                               **\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m**     See output above do determine the ACTIVE NODE.                         **\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m**                                                                            **\033[0m"
+  bold_echo "\033[0;31m********************************************************************************\033[0m"
+  bold_echo "\033[0;31m********************************************************************************\033[0m"
+
+  systemctl stop "{{ deploy.service_name }}_${NEW_SERVICE}.service"
+  systemctl disable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
+
+  exit 1
+fi
+
 # Update NGINX config and reload -----------------------------------------------
 bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
 ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}.conf" \

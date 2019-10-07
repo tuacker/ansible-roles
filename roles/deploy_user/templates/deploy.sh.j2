@@ -43,14 +43,20 @@ set +o allexport
 
 APP_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
 
+bold_echo "===> Active Node is: ${ACTIVE_SERVICE} || New Node is: ${NEW_SERVICE}"
+bold_echo "==="
+
 # Ask node to get ready for shutdown (for example: stop processing jobs) -------
 bold_echo "===> $ACTIVE_SERVICE | Asking the ACTIVE node to get ready for shutdown"
+bold_echo "==="
 env -i "/usr/local/bin/run_{{ deploy.service_name }}" rpc "{{ deploy.shutdown_rpc }}"
 
 # Deploy new version ----------------------------------------------------------
 bold_echo "===> $NEW_SERVICE | Deploying new app version"
+bold_echo "==="
 if [ ! -d "$APP_DIR" ]; then
   bold_echo "===> Creating $APP_DIR"
+  bold_echo "==="
   mkdir -p $APP_DIR
   chown -R {{ deploy.service_name }}:{{ deploy.service_name }} $APP_DIR
 fi
@@ -62,6 +68,7 @@ rsync -a --delete \
 
 # Enable and start new (blue/green) service ------------------------------------
 bold_echo "===> $NEW_SERVICE | Enable: {{ deploy.service_name }}_${NEW_SERVICE}.service"
+bold_echo "==="
 systemctl enable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
 bold_echo "===> $NEW_SERVICE | Run preparation task for new node"
@@ -72,13 +79,15 @@ bold_echo "==="
 chown -R {{ deploy.service_name }}:{{ deploy.service_name }} "$APP_DIR"
 
 bold_echo "===> $NEW_SERVICE | Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
+bold_echo "==="
 systemctl start "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
+# Make sure new node comes up right, otherwise abort ---------------------------
 bold_echo "===> $NEW_SERVICE | Wait until node is responsive"
-export "$(grep '^PORT=' /etc/newsletty/newsletty_${NEW_SERVICE}_env | xargs)"
-
+bold_echo "==="
 NEXT_WAIT_TIME=0
-until curl "http://127.0.0.1:$PORT" > /dev/null 2>&1 || [ $NEXT_WAIT_TIME -eq 20 ]; do
+MAX_WAIT_TIME=20
+until curl "http://127.0.0.1:$PORT" > /dev/null 2>&1 || [ $NEXT_WAIT_TIME -eq $MAX_WAIT_TIME ]; do
   printf "."
   sleep $(( NEXT_WAIT_TIME++ ))
 done
@@ -112,28 +121,35 @@ fi
 
 # Update NGINX config and reload -----------------------------------------------
 bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
+bold_echo "==="
 ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}.conf" \
        "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}.conf"
 
 bold_echo "===> $NEW_SERVICE | NGINX: Test & reload"
+bold_echo "==="
 nginx -t
 systemctl reload nginx
 
 # Stop and disable old (blue/green) service ------------------------------------
 bold_echo "===> $ACTIVE_SERVICE | Stop: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
+bold_echo "==="
 systemctl stop "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
 bold_echo "===> $ACTIVE_SERVICE | Disable: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
+bold_echo "==="
 systemctl disable "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
 # Mark new (blue/green) service as active --------------------------------------
 bold_echo "===> $NEW_SERVICE | Active: Set $NEW_SERVICE as active"
+bold_echo "==="
 echo "$NEW_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
 
 # Cleanup ----------------------------------------------------------------------
 bold_echo "===> Cleanup"
+bold_echo "==="
 rm -rf "$HOME/{{ deploy.service_name }}"
 
+bold_echo "==="
 bold_echo "===> Done"
 
 exit 0

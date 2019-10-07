@@ -15,7 +15,7 @@
 
 - name: Install a script to quickly run commands against the active (green or blue) app
   template: src=app_run.sh.j2
-            dest=/home/{{ elixir_app.name }}/{{ elixir_app.name }}_run.sh
+            dest=/usr/local/bin/run_{{ elixir_app.name }}
             owner={{ elixir_app.name }}
             group={{ elixir_app.name }}
             mode=0755

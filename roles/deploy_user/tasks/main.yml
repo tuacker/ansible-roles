@@ -10,7 +10,7 @@
 
 - name: Add deploy script
   template: src=deploy.sh.j2
-            dest="/usr/local/bin/{{ deploy.service_name }}_deploy.sh"
+            dest="/usr/local/bin/deploy_{{ deploy.service_name }}"
             owner=root
             group=root
             mode=0755

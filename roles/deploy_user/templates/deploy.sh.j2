@@ -73,8 +73,8 @@ printf "\n"
 
 # Update NGINX config and reload -----------------------------------------------
 bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
-ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}" \
-       "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}"
+ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}.conf" \
+       "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}.conf"
 
 bold_echo "===> $NEW_SERVICE | NGINX: Test & reload"
 nginx -t

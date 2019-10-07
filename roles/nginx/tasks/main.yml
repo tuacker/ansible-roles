@@ -32,7 +32,7 @@
 
 - name: Install nginx virtual host configs in sites-available
   template:
-    src: "virtual_host_conf.j2"
-    dest: /etc/nginx/sites-available/{{ item.type }}.{{ item.domain }}
+    src: "virtual_host.conf.j2"
+    dest: /etc/nginx/sites-available/{{ item.type }}.{{ item.domain }}.conf
   with_items: "{{ nginx.proxy_configs }}"
   notify: reload nginx

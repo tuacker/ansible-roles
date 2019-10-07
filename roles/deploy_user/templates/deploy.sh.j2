@@ -24,6 +24,13 @@ function determine_active_service() {
 }
 # HELPERS ----------------------------------------------------------------------
 
+NEW_RELEASE_DIR="$HOME/{{ deploy.service_name }}/"
+
+if [ ! -d "$NEW_RELEASE_DIR" ]; then
+  bold_echo "\033[0;31mCould not find release at ${NEW_RELEASE_DIR} - aborting\033[0m"
+  exit 1
+fi
+
 
 # Set up our variables ---------------------------------------------------------
 # Determine which (blue / green) is going to be active after deployment. -------

@@ -69,6 +69,7 @@ certs:
   email: "{{ cert_email }}"
 
 nginx:
+  proxy_conf_path: "{{ app_nginx_conf_path }}"
   proxy_name: "{{ app_name }}"
   proxy_domain: "{{ app_domain }}"
   proxy_root_domain: "{{ root_domain }}"

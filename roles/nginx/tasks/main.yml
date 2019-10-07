@@ -31,8 +31,7 @@
     - security.conf
 
 - name: Install nginx virtual host configs in sites-available
-  template:
-    src: "virtual_host.conf.j2"
-    dest: /etc/nginx/sites-available/{{ item.type }}.{{ nginx.proxy_domain }}.conf
+  template: src="{{ nginx.proxy_conf_path }}"
+            dest="/etc/nginx/sites-available/{{ item.type }}.{{ nginx.proxy_domain }}.conf"
   with_items: "{{ nginx.proxy_configs }}"
   notify: reload nginx

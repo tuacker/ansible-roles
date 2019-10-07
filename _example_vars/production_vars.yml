@@ -16,7 +16,7 @@ app_deploy_pubkey: "~/.ssh/deploy_{{ app_name }}.pub"
 
 app_env_template_path: "{{ './_example-env-template.j2' | realpath }}"
 app_nginx_conf_path: "{{ './_example-virtual_host.conf.j2' | realpath }}"
-
+app_nginx_vhost_name: "{{ app_domain }}.conf"
 # "shutdown_rpc" is run against the active node as first step in the blue/green
 #                switchover. Use this to prepare the node for shutdown, i.e.
 #                stop the job queue
@@ -50,7 +50,7 @@ deploy:
   shell: "/bin/bash"
   pubkey: "{{ app_deploy_pubkey }}"
   service_name: "{{ app_name }}"
-  nginx_vhost: "{{ app_domain }}.conf"
+  nginx_vhost: "{{ app_nginx_vhost_name }}"
   shutdown_rpc: "{{ app_shutdown_rpc }}"
   prepare_eval: "{{ app_prepare_eval }}"
 
@@ -62,8 +62,6 @@ postgres:
 
 certs:
   domain: "{{ root_domain }}"
-  # Staging server, you'll want to change this to the real server for production:
-  # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
   acme_server: "{{ cert_acme_server }}"
   gandi_api_key: "{{ secrets_gandi_api_key }}" # (from  secrets.yml)
   email: "{{ cert_email }}"
@@ -73,4 +71,5 @@ nginx:
   proxy_name: "{{ app_name }}"
   proxy_domain: "{{ app_domain }}"
   proxy_root_domain: "{{ root_domain }}"
+  proxy_vhost_name: "{{ app_nginx_vhost_name }}"
   proxy_configs: "{{ app_blue_green_config }}"

@@ -32,6 +32,6 @@
 
 - name: Install nginx virtual host configs in sites-available
   template: src="{{ nginx.proxy_conf_path }}"
-            dest="/etc/nginx/sites-available/{{ item.type }}.{{ nginx.proxy_domain }}.conf"
+            dest="/etc/nginx/sites-available/{{ item.type }}.{{ nginx.proxy_vhost_name }}"
   with_items: "{{ nginx.proxy_configs }}"
   notify: reload nginx

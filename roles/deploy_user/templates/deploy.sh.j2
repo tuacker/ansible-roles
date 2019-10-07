@@ -122,8 +122,8 @@ fi
 # Update NGINX config and reload -----------------------------------------------
 bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
 bold_echo "==="
-ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}.conf" \
-       "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}.conf"
+ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}" \
+       "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}"
 
 bold_echo "===> $NEW_SERVICE | NGINX: Test & reload"
 bold_echo "==="

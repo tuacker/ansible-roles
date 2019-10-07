@@ -1,37 +1,58 @@
 ---
-# You'll want to change the variables marked as "CHANGE ME"
-# Other variables can be changed as well, but these are the most common ones.
+# You'll want to change the following variables.
+# Role variables can be changed as well, but these should suffice.
+#
+# Make sure to also check out the secrets.yml
 
-app_name: "my_app" # CHANGE ME
-root_domain: "{{ app_name}}.com" # CHANGE ME
-app_domain: "app.{{ root_domain }}" # CHANGE ME
+app_name: "my_app"
+
+root_domain: "{{ app_name}}.com"
+app_domain: "app.{{ root_domain }}"
 
 sudo_users:
-  - { name: "sudouser", shell: "/bin/bash", pubkey: "~/.ssh/id_rsa.pub" } # CHANGE ME
+  - { name: "santa", shell: "/bin/bash", pubkey: "~/.ssh/id_rsa.pub" }
 
+app_deploy_pubkey: "~/.ssh/deploy_{{ app_name }}.pub"
+
+app_env_template_path: "{{ './_example-env-template.j2' | realpath }}"
+app_nginx_conf_path: "{{ './_example-virtual_host.conf.j2' | realpath }}"
+
+# "shutdown_rpc" is run against the active node as first step in the blue/green
+#                switchover. Use this to prepare the node for shutdown, i.e.
+#                stop the job queue
+app_shutdown_rpc: "MyApp.ReleaseTasks.rpc_prepare_for_shutdown()"
+# "prepare_eval" is run before the new node is brought up, this is a good place
+#                to run migrations. Make sure your migrations do not mess with
+#                the old nodes ability to do its work as it is still running
+#                at this point!
+app_prepare_eval: "MyApp.ReleaseTasks.eval_run_migrations()"
+
+app_blue_green_config:
+  - { type: "blue", port: "4000" }
+  - { type: "green", port: "4001" }
+
+# Staging server, you'll want to change this to the real server for production:
+# "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
+cert_acme_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+cert_email: "ssl@example.com"
+
+# ------------------------------------------------------------------------------
+# Set up role variables using above definitions. They map to their respective roles.
+# The given variables are required unless you change the individual tasks.
 elixir_app:
   name: "{{ app_name }}"
   shell: "/bin/bash"
-  env_template_path: "{{ './_example-env-template.j2' | realpath }}" # CHANGE ME
-  blue_green_config:
-      - { type: "blue", port: "4000" }
-      - { type: "green", port: "4001" }
+  env_template_path:  "{{ app_env_template_path }}"
+  blue_green_config: "{{ app_blue_green_config }}"
 
 deploy:
   user: "deploy_{{ app_name }}"
   shell: "/bin/bash"
-  pubkey: "~/.ssh/deploy_{{ app_name }}.pub" # CHANGE ME
+  pubkey: "{{ app_deploy_pubkey }}"
   service_name: "{{ app_name }}"
-  nginx_vhost: "{{ app_domain }}"
-  # "shutdown_rpc" is run against the active node as first step in the blue/green
-  #                switchover. Use this to prepare the node for shutdown, i.e.
-  #                stop the job queue
-  shutdown_rpc: "MyApp.ReleaseTasks.rpc_prepare_for_shutdown()" # CHANGE ME
-  # "prepare_eval" is run before the new node is brought up, this is a good place
-  #                to run migrations. Make sure your migrations do not mess with
-  #                the old nodes ability to do its work as it is still running
-  #                at this point!
-  prepare_eval: "MyApp.ReleaseTasks.eval_run_migrations()" # CHANGE ME
+  nginx_vhost: "{{ app_domain }}.conf"
+  shutdown_rpc: "{{ app_shutdown_rpc }}"
+  prepare_eval: "{{ app_prepare_eval }}"
 
 postgres:
   version: 12
@@ -43,11 +64,12 @@ certs:
   domain: "{{ root_domain }}"
   # Staging server, you'll want to change this to the real server for production:
   # "https://acme-v02.api.letsencrypt.org/directory" (v02 required for wildcards)
-  acme_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
-  gandi_api_key: "{{ secrets_gandi_api_key }}"
-  email: "ssl@example.com" # CHANGE ME
+  acme_server: "{{ cert_acme_server }}"
+  gandi_api_key: "{{ secrets_gandi_api_key }}" # (from  secrets.yml)
+  email: "{{ cert_email }}"
 
 nginx:
-  proxy_configs:
-    - { name: "{{ app_name }}" ,domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "blue", proxy_port: "4000" }
-    - { name: "{{ app_name }}" ,domain: "{{ app_domain }}", root_domain: "{{ root_domain }}", type: "green", proxy_port: "4001" }
+  proxy_name: "{{ app_name }}"
+  proxy_domain: "{{ app_domain }}"
+  proxy_root_domain: "{{ root_domain }}"
+  proxy_configs: "{{ app_blue_green_config }}"

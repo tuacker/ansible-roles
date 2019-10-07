@@ -48,7 +48,7 @@ set -o allexport
 . /etc/{{ deploy.service_name }}/{{ deploy.service_name }}_"$NEW_SERVICE"_env
 set +o allexport
 
-APP_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
+APP_DEPLOY_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
 
 bold_echo "===> Active Node is: ${ACTIVE_SERVICE} || New Node is: ${NEW_SERVICE}"
 bold_echo "==="
@@ -56,22 +56,22 @@ bold_echo "==="
 # Ask node to get ready for shutdown (for example: stop processing jobs) -------
 bold_echo "===> $ACTIVE_SERVICE | Asking the ACTIVE node to get ready for shutdown"
 bold_echo "==="
-env -i "/usr/local/bin/run_{{ deploy.service_name }}" rpc "{{ deploy.shutdown_rpc }}"
+"/usr/local/bin/run_{{ deploy.service_name }}" rpc "{{ deploy.shutdown_rpc }}"
 
 # Deploy new version ----------------------------------------------------------
 bold_echo "===> $NEW_SERVICE | Deploying new app version"
 bold_echo "==="
-if [ ! -d "$APP_DIR" ]; then
-  bold_echo "===> Creating $APP_DIR"
+if [ ! -d "$APP_DEPLOY_DIR" ]; then
+  bold_echo "===> Creating $APP_DEPLOY_DIR"
   bold_echo "==="
-  mkdir -p $APP_DIR
-  chown -R {{ deploy.service_name }}:{{ deploy.service_name }} $APP_DIR
+  mkdir -p $APP_DEPLOY_DIR
+  chown -R {{ deploy.service_name }}:{{ deploy.service_name }} $APP_DEPLOY_DIR
 fi
 
 # copy all new files & make sure no longer existing files are deleted
 rsync -a --delete \
       --chown={{ deploy.service_name }}:{{ deploy.service_name }} \
-      "$HOME/{{ deploy.service_name }}/" $APP_DIR
+      "$NEW_RELEASE_DIR" $APP_DEPLOY_DIR
 
 # Enable and start new (blue/green) service ------------------------------------
 bold_echo "===> $NEW_SERVICE | Enable: {{ deploy.service_name }}_${NEW_SERVICE}.service"
@@ -80,10 +80,10 @@ systemctl enable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
 bold_echo "===> $NEW_SERVICE | Run preparation task for new node"
 bold_echo "==="
-"${APP_DIR}/bin/{{ deploy.service_name }}" eval "{{ deploy.prepare_eval }}"
+"${APP_DEPLOY_DIR}/bin/{{ deploy.service_name }}" eval "{{ deploy.prepare_eval }}"
 
-# The above command may create some files, make sure permissions of APP_DIR are in tact.
-chown -R {{ deploy.service_name }}:{{ deploy.service_name }} "$APP_DIR"
+# The above command may create some files, make sure permissions of APP_DEPLOY_DIR are in tact.
+chown -R {{ deploy.service_name }}:{{ deploy.service_name }} "$APP_DEPLOY_DIR"
 
 bold_echo "===> $NEW_SERVICE | Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
 bold_echo "==="

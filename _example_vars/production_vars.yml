@@ -23,6 +23,15 @@ deploy:
   pubkey: "~/.ssh/deploy_{{ app_name }}.pub" # CHANGE ME
   service_name: "{{ app_name }}"
   nginx_vhost: "{{ app_domain }}"
+  # "shutdown_rpc" is run against the active node as first step in the blue/green
+  #                switchover. Use this to prepare the node for shutdown, i.e.
+  #                stop the job queue
+  shutdown_rpc: "MyApp.ReleaseTasks.rpc_prepare_for_shutdown()" # CHANGE ME
+  # "prepare_eval" is run before the new node is brought up, this is a good place
+  #                to run migrations. Make sure your migrations do not mess with
+  #                the old nodes ability to do its work as it is still running
+  #                at this point!
+  prepare_eval: "MyApp.ReleaseTasks.eval_run_migrations()" # CHANGE ME
 
 postgres:
   version: 12

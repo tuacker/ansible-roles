@@ -7,12 +7,12 @@ set -euo pipefail
 # Helpers ----------------------------------------------------------------------
 # Print messages in bold
 function pretty_bold() {
-  printf "\033[1m$1\033[0m"
+  printf "\033[1m$1\033[0m\n"
 }
 
 # Print messages in bold and red
 function pretty_red() {
-  printf "\033[1m\033[0;31m$1\033[0m"
+  printf "\033[1m\033[0;31m$1\033[0m\n"
 }
 
 # Pretty header "===> msg ====="
@@ -60,7 +60,7 @@ set +o allexport
 
 APP_DEPLOY_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
 
-pretty_bold "[${ACTIVE_SERVICE}] is active & [${NEW_SERVICE}] is new\n"
+pretty_bold "[${ACTIVE_SERVICE}] is active & [${NEW_SERVICE}] is new"
 
 # Ask node to get ready for shutdown (for example: stop processing jobs) -------
 pretty_header "[${ACTIVE_SERVICE}] Asking the active node to get ready for shutdown"

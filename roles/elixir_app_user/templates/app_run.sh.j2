@@ -5,9 +5,9 @@
 set -euo pipefail
 
 # Helpers ----------------------------------------------------------------------
-# Print echo messages in bold --------------------------------------------------
-function bold_echo() {
-  echo -e "\033[1m$1\033[0m"
+# Pretty header "===> msg ====="
+function pretty_header() {
+  printf '\n\033[1m%.80s\033[0m\n' "$1 $(printf '%.1s' *{1..80})"
 }
 
 # Determine active service -----------------------------------------------------
@@ -17,7 +17,7 @@ function determine_active_service() {
 
   # If no active service was configured yet (i.e. first deploy) then use "blue"
   if [ ! -f "$ACTIVE_SERVICE_FILE_PATH" ]; then
-    bold_echo "===> No active service defined. Did you deploy yet?"
+    pretty_red "No active service defined. Did you deploy yet?"
     exit
   fi
 
@@ -36,5 +36,5 @@ APP_ROOT="/srv/app/{{ elixir_app.name }}_${ACTIVE_SERVICE}"
 if systemctl is-active --quiet "{{ elixir_app.name }}_${ACTIVE_SERVICE}.service"; then
   "$APP_ROOT/bin/{{ elixir_app.name }}" "$@"
 else
- bold_echo "===> {{ elixir_app.name }}_${ACTIVE_SERVICE}.service is NOT running..."
+ pretty_red "{{ elixir_app.name }}_${ACTIVE_SERVICE}.service is NOT running..."
 fi

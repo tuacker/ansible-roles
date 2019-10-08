@@ -5,9 +5,19 @@
 set -euo pipefail
 
 # Helpers ----------------------------------------------------------------------
-# Print echo messages in bold --------------------------------------------------
-function bold_echo() {
-  echo -e "\033[1m$1\033[0m"
+# Print messages in bold
+function pretty_bold() {
+  printf "\033[1m$1\033[0m"
+}
+
+# Print messages in bold and red
+function pretty_red() {
+  printf "\033[1m\033[0;31m$1\033[0m"
+}
+
+# Pretty header "===> msg ====="
+function pretty_header() {
+  printf '\n\033[1m%.80s\033[0m\n' "$1 $(printf '%.1s' *{1..80})"
 }
 
 # Determine active service -----------------------------------------------------
@@ -27,7 +37,7 @@ function determine_active_service() {
 NEW_RELEASE_DIR="$HOME/{{ deploy.service_name }}/"
 
 if [ ! -d "$NEW_RELEASE_DIR" ]; then
-  bold_echo "\033[0;31mCould not find release at ${NEW_RELEASE_DIR} - aborting\033[0m"
+  pretty_red "Could not find release at ${NEW_RELEASE_DIR} - aborting"
   exit 1
 fi
 
@@ -50,20 +60,17 @@ set +o allexport
 
 APP_DEPLOY_DIR="/srv/app/{{ deploy.service_name }}_${NEW_SERVICE}"
 
-bold_echo "===> Active Node is: ${ACTIVE_SERVICE} || New Node is: ${NEW_SERVICE}"
-bold_echo "==="
+pretty_bold "[${ACTIVE_SERVICE}] is active & [${NEW_SERVICE}] is new\n"
 
 # Ask node to get ready for shutdown (for example: stop processing jobs) -------
-bold_echo "===> $ACTIVE_SERVICE | Asking the ACTIVE node to get ready for shutdown"
-bold_echo "==="
+pretty_header "[${ACTIVE_SERVICE}] Asking the active node to get ready for shutdown"
 "/usr/local/bin/run_{{ deploy.service_name }}" rpc "{{ deploy.shutdown_rpc }}"
 
 # Deploy new version ----------------------------------------------------------
-bold_echo "===> $NEW_SERVICE | Deploying new app version"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Deploying new app version"
 if [ ! -d "$APP_DEPLOY_DIR" ]; then
-  bold_echo "===> Creating $APP_DEPLOY_DIR"
-  bold_echo "==="
+  pretty_header "Creating $APP_DEPLOY_DIR"
+
   mkdir -p $APP_DEPLOY_DIR
   chown -R {{ deploy.service_name }}:{{ deploy.service_name }} $APP_DEPLOY_DIR
 fi
@@ -74,24 +81,20 @@ rsync -a --delete \
       "$NEW_RELEASE_DIR" $APP_DEPLOY_DIR
 
 # Enable and start new (blue/green) service ------------------------------------
-bold_echo "===> $NEW_SERVICE | Enable: {{ deploy.service_name }}_${NEW_SERVICE}.service"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Enable: {{ deploy.service_name }}_${NEW_SERVICE}.service"
 systemctl enable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
-bold_echo "===> $NEW_SERVICE | Run preparation task for new node"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Run preparation task for new node"
 "${APP_DEPLOY_DIR}/bin/{{ deploy.service_name }}" eval "{{ deploy.prepare_eval }}"
 
 # The above command may create some files, make sure permissions of APP_DEPLOY_DIR are in tact.
 chown -R {{ deploy.service_name }}:{{ deploy.service_name }} "$APP_DEPLOY_DIR"
 
-bold_echo "===> $NEW_SERVICE | Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Start: {{ deploy.service_name }}_${NEW_SERVICE}.service"
 systemctl start "{{ deploy.service_name }}_${NEW_SERVICE}.service"
 
 # Make sure new node comes up right, otherwise abort ---------------------------
-bold_echo "===> $NEW_SERVICE | Wait until node is responsive"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Wait until node is responsive"
 ATTEMPT=0
 MAX_ATTEMPTS=120
 
@@ -104,23 +107,23 @@ done
 printf "\n"
 
 if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-  bold_echo "\033[0;31m********************************************************************************\033[0m"
-  bold_echo "\033[0;31m********************************************************************************\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**     New node failed to respond in the given time - aborting                **\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**     Manual actions required:                                               **\033[0m"
-  bold_echo "\033[0;31m**     ========================                                               **\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**       - Make sure the active node is in proper state.                      **\033[0m"
-  bold_echo "\033[0;31m**       - Restart jobs, etc.                                                 **\033[0m"
-  bold_echo "\033[0;31m**       - ROLL BACK migrations                                               **\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**     See output above do determine the ACTIVE NODE.                         **\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m**                                                                            **\033[0m"
-  bold_echo "\033[0;31m********************************************************************************\033[0m"
-  bold_echo "\033[0;31m********************************************************************************\033[0m"
+  pretty_red "********************************************************************************"
+  pretty_red "********************************************************************************"
+  pretty_red "**                                                                            **"
+  pretty_red "**     New node failed to respond in the given time - aborting                **"
+  pretty_red "**                                                                            **"
+  pretty_red "**     Manual actions required:                                               **"
+  pretty_red "**     ========================                                               **"
+  pretty_red "**                                                                            **"
+  pretty_red "**       - Make sure the active node is in proper state.                      **"
+  pretty_red "**       - Restart jobs, etc.                                                 **"
+  pretty_red "**       - ROLL BACK migrations                                               **"
+  pretty_red "**                                                                            **"
+  pretty_red "**     See output above do determine the ACTIVE NODE.                         **"
+  pretty_red "**                                                                            **"
+  pretty_red "**                                                                            **"
+  pretty_red "********************************************************************************"
+  pretty_red "********************************************************************************"
 
   systemctl stop "{{ deploy.service_name }}_${NEW_SERVICE}.service"
   systemctl disable "{{ deploy.service_name }}_${NEW_SERVICE}.service"
@@ -129,36 +132,29 @@ if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
 fi
 
 # Update NGINX config and reload -----------------------------------------------
-bold_echo "===> $NEW_SERVICE | NGINX: Link new service to sites-enabled"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] NGINX: Link new service to sites-enabled"
 ln -sf "/etc/nginx/sites-available/${NEW_SERVICE}.{{ deploy.nginx_vhost }}" \
        "/etc/nginx/sites-enabled/{{ deploy.nginx_vhost }}"
 
-bold_echo "===> $NEW_SERVICE | NGINX: Test & reload"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] NGINX: Test & reload"
 nginx -t
 systemctl reload nginx
 
 # Stop and disable old (blue/green) service ------------------------------------
-bold_echo "===> $ACTIVE_SERVICE | Stop: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
-bold_echo "==="
+pretty_header "[${ACTIVE_SERVICE}] Stop: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 systemctl stop "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
-bold_echo "===> $ACTIVE_SERVICE | Disable: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
-bold_echo "==="
+pretty_header "[${ACTIVE_SERVICE}] Disable: {{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 systemctl disable "{{ deploy.service_name }}_${ACTIVE_SERVICE}.service"
 
 # Mark new (blue/green) service as active --------------------------------------
-bold_echo "===> $NEW_SERVICE | Active: Set $NEW_SERVICE as active"
-bold_echo "==="
+pretty_header "[${NEW_SERVICE}] Active: Set $NEW_SERVICE as active"
 echo "$NEW_SERVICE" > "$ACTIVE_SERVICE_FILE_PATH"
 
 # Cleanup ----------------------------------------------------------------------
-bold_echo "===> Cleanup"
-bold_echo "==="
+pretty_header "Cleanup"
 rm -rf "$HOME/{{ deploy.service_name }}"
 
-bold_echo "==="
-bold_echo "===> Done"
+pretty_header "Done"
 
 exit 0

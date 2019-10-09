@@ -7,7 +7,7 @@ set -euo pipefail
 # Helpers ----------------------------------------------------------------------
 # Print messages in bold and red
 function pretty_red() {
-  printf "\033[1m\033[0;31m$1\033[0m\n"
+  printf "\033[1m\033[0;31m%s\033[0m\n" "$1"
 }
 
 # Determine active service -----------------------------------------------------
